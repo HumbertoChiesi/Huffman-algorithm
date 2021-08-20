@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/ArvorePointer.h
+stdlib.h
+-
+stdio.h
+-
+
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/Booleano.h
+
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/ListaPointer.h
+stdio.h
+-
+stdlib.h
+-
+Booleano.h
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/Booleano.h
+
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/main.c
+string.h
+-
+stdio.h
+-
+stdlib.h
+-
+ListaPointer.h
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/ListaPointer.h
+Booleano.h
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/Booleano.h
+ArvorePointer.h
+C:/Users/user/Desktop/CC-PUCSP/4 semestre/Estuturas-de-dados/HuffmanAlgorithm/ArvorePointer.h
+
