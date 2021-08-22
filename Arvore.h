@@ -1,10 +1,6 @@
-/*
-  Descrição: Este programa implementa uma Árvore Binária de caracteres.
-  			A função construir liga uma raiz a duas árvores esquerda e direita.
-*/
-
 #include <stdlib.h>
 #include <stdio.h>
+#include "Boolean.h"
 
 typedef struct No{
     char item;

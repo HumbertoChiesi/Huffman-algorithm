@@ -3,4 +3,4 @@ project(HuffmanAlgorithm)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(HuffmanAlgorithm main.c Booleano.h ArvorePointer.h ListaPointer.h)
+add_executable(HuffmanAlgorithm main.c Boolean.h Arvore.h Lista.h)
