@@ -4,10 +4,14 @@
 #include "Lista.h"
 #include "Arvore.h"
 
+#define ASCII 256
+
+void binario(char *);
+void binarioHuff(char *, int []);
 char *lerArquivo(char *);
 int listaFrequencia(char *, struct Celula **);
 Arvore arvoreHuffman(struct Celula *, int);
-int listaHuff(Arvore, int, int, struct Celula **);
+int listaHuff(Arvore, int, int, int []);
 void mergeSort(struct Celula **);
 struct Celula *sortedMerge(struct Celula *, struct Celula*);
 void splitList(struct Celula *, struct Celula **, struct Celula **);
@@ -16,15 +20,59 @@ int main() {
     struct Celula * a = NULL, * listaCodigos = NULL;
     int tamanho;
     char * texto;
+    int codigos[ASCII];
 
     texto = lerArquivo("..\\texto\\texto.txt");
     tamanho = listaFrequencia(texto, &a);
     Arvore huff = arvoreHuffman(a, tamanho);
-    listaHuff(huff, 0, 0, &listaCodigos);
-    mostrarLista(listaCodigos);
+    for (int i = 0; i < ASCII; i++) codigos[i] = 0;
+    listaHuff(huff, 0, 0, codigos);
+    printf("Texto em binario:\n-------------------------\n");
+    binario(texto);
+    printf("\n\nTexto em binario dps do algoritmo de Huffman:\n-------------------------\n");
+    binarioHuff(texto, codigos);
+
     return 0;
 }
 
+//função que imprime uma string em binario
+//parametro: uma string
+void binario(char * M){
+    int n,nb,i,k,r,D;
+    char *code;
+    n = strlen(M);
+    code = malloc((8*n+1)*sizeof(char));
+    nb = 8*n;  for(k=0;k<=nb;k++) code[k] = 48;	code[nb]='\0';
+    i = n-1;    k = nb-1;
+    while (i>=0){
+        D = M[i];
+        do{
+            r = D % 2; D = D/2; code[k] = r + 48;
+            k = k-1;
+        } while (D != 0);
+        code[k] = D + 48;
+        k--;
+        i--;
+    }
+    printf("%s", code);
+}
+
+//uma funcao que mostra o texto em binarios com os códigos obtidos depois da compressao do Algoritmo de Huffman
+//parametros: um texto e um array com os novos valores em binario dos caracteres
+//*para acessar novo código de cada caracter basta usar seu codigo do ASCII como índice
+void binarioHuff(char * texto, int codigos[]){
+    size_t tamanho = strlen(texto);
+    int i;
+
+    for (i = 0; i < tamanho; i++) {
+        printf("%d", codigos[texto[i]]);
+    }
+
+    printf("\n");
+}
+
+
+//le um arquivo e devolve uma string com o conteudo
 char *lerArquivo(char * fileName) {
     FILE *file = fopen(fileName, "r");
     char *code;
@@ -47,9 +95,9 @@ char *lerArquivo(char * fileName) {
 }
 
 //funcao que analiza quais e quantas vezes os caracteres aparecem em uma string
-//devolve uma lista ligada em ordem crescente em relacao a quantidade de vezes que o caracter aparece no texto
-//parametros = uma string para ser analizada
-
+//e aloca no nó de parametro uma lista ligada em ordem crescente em relacao a quantidade de vezes que o caracter aparece no texto
+//devolve um inteiro que representa a quantidade de caracteres unicos no texto
+//parametros = uma string para ser analizada e um nó da lista ligada
 int listaFrequencia(char *texto, struct Celula ** listaFrequencia){
     struct Celula * aux, * auxQntd;
     int i;
@@ -74,31 +122,39 @@ int listaFrequencia(char *texto, struct Celula ** listaFrequencia){
         } else auxQntd->qntd = auxQntd->qntd + 1;
     }
 
-    //organiza a lista encadeada que guarda os caracteres e suas frequencia com o algoritmo mergeSort
+    //organiza a lista encadeada que guarda os caracteres e suas frequencia com Merge sort
     mergeSort(listaFrequencia);
 
     return charEncontrados;
 }
 
+//funcao que constroi a arvore de Huffman que sera utilizada para gerar os novos códigos dos caracteres
+//parametro: primeiro nó de uma fila encadeada com os caracteres e suas frequencias e a quantidade de caracteres nessa fila
+//retorna a arvore de Huffman
 Arvore arvoreHuffman(struct Celula * listaFrequencia, int tamanho){
-    int i;
+    int i, k;
     int inicioListaHuffman = 0;
     Arvore huffman[tamanho];
     struct Celula * aux;
     Arvore auxE, auxD;
 
     aux = listaFrequencia;
+    //popula o array de Arvores
     for (i = 0; i < tamanho; i++) {
         huffman[i] = construirArvore(aux->caracter, aux->qntd, NULL, NULL);
         aux = aux->next;
     }
 
+    //primeiramente construo e coloco na segunda posição do array uma arvore que tem
+    // 2 filhos que são o primeiro e segundo elemento do array de arvores
+    //sendo que a variável int k indica onde que esse array começa
+    // é incrementado 1 a essa variável toda vez que somamos o primeiro e segundo elemento do array
     while (inicioListaHuffman < (tamanho-1)){
         int qntd = huffman[inicioListaHuffman]->num + huffman[inicioListaHuffman+1]->num;
         huffman[inicioListaHuffman+1] = construirArvore('\0', qntd, huffman[inicioListaHuffman], huffman[inicioListaHuffman+1]);
         inicioListaHuffman++;
 
-        int k = inicioListaHuffman;
+        k = inicioListaHuffman;
         Arvore auxHuff;
         while (k + 1 < tamanho && huffman[k]->num > huffman[k+1]->num){
             if (huffman[k]->num > huffman[k+1]->num){
@@ -113,14 +169,18 @@ Arvore arvoreHuffman(struct Celula * listaFrequencia, int tamanho){
     return huffman[inicioListaHuffman];
 }
 
-int listaHuff(Arvore ap, int e, int codigo, struct Celula ** lp){
+//funcao recurssiva que com a arvore de Huffman acha os novos códigos dos caracteres
+//parametros: arvore de Huffman, inteiro e, codigo que é o código atual em função da movimentação na arvore e um array para alocar os códigos
+//*e indica a ultima movimentação feita na arvore (1 quando vai para o nó da direito e 0 para o da esquerda)
+//retorna um inteiro cod que indica a posição na arvore
+int listaHuff(Arvore ap, int e, int codigo, int codigos[ASCII]){
     int cod = (codigo*10) + e;
     if (!isFolha(ap)){
-        cod = listaHuff(ap->esq, 0, cod, lp);
-        cod = listaHuff(ap->dir, 1, cod, lp);
+        cod = listaHuff(ap->esq, 0, cod, codigos);
+        cod = listaHuff(ap->dir, 1, cod, codigos);
         cod = cod/10;
     } else {
-        inserir(lp, ap->item, cod);
+        codigos[(int)ap->item] = cod;
         cod = cod/10;
     }
     return cod;
